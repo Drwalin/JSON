@@ -80,7 +80,6 @@ public:
 		type = OBJECT;
 		object = new object_t(begin, end);
 	}
-	
 	JSON(const JSON& other) {
 		type = other.type;
 		switch(type) {
@@ -268,7 +267,7 @@ public:
 					case BOOLEAN:
 						return JSON((integer_t)boolean);
 					case STRING:
-						return JSON(atoll(string->c_str()));
+						return JSON((integer_t)atoll(string->c_str()));
 					default:
 						break;
 				}
@@ -338,9 +337,18 @@ public:
 	inline operator const array_t&() const {return GetArray();}
 	inline operator const object_t&() const {return GetObject();}
 	inline operator const string_t() const {return GetString();}
-	inline operator const real_t() const {return GetReal();}
+	inline operator const float() const {return GetReal();}
+	inline operator const double() const {return GetReal();}
+	inline operator const long double() const {return GetReal();}
 	inline operator const boolean_t() const {return GetBoolean();}
-	inline operator const integer_t() const {return GetInteger();}
+	inline operator const uint64_t() const {return GetInteger();}
+	inline operator const uint32_t() const {return GetInteger();}
+	inline operator const uint16_t() const {return GetInteger();}
+	inline operator const uint8_t() const {return GetInteger();}
+	inline operator const int64_t() const {return GetInteger();}
+	inline operator const int32_t() const {return GetInteger();}
+	inline operator const int16_t() const {return GetInteger();}
+	inline operator const int8_t() const {return GetInteger();}
 	
 	inline const array_t& Array() const {return GetArray();}
 	inline const object_t& Object() const {return GetObject();}
@@ -610,9 +618,9 @@ public:
 						Destroy();
 					}
 					if(std::any_of(value.begin(), value.end(), [](char c)->bool{return c=='.'||c=='e'||c=='E';})) {	// is probably real
-						*this = atof(value.c_str());
+						*this = (real_t)atof(value.c_str());
 					} else { // is probably a integer integer
-						*this = atoll(value.c_str());
+						*this = (integer_t)atoll(value.c_str());
 					}
 				}
 		}
