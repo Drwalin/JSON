@@ -30,8 +30,6 @@
 #include <cstdlib>
 #include <cinttypes>
 
-#define DEBUG {fprintf(stderr, "\n %s  %s: %i", __FUNCTION__, __FILE__, __LINE__); fflush(stderr);}
-
 inline std::istream& operator>>(std::istream& in, class JSON& json);
 inline std::ostream& operator<<(std::ostream& out, const class JSON& json);
 
@@ -542,12 +540,10 @@ public:
 	}
 	
 	inline void Read(std::istream& in) {
-		DEBUG;
 		ReadWs(in);
 		switch(in.peek()) {
 			case '[':	// is array
 				in.get();
-		DEBUG;
 				AssureType(ARRAY);
 				while(!in.eof()) {
 					ReadWs(in);
@@ -566,7 +562,6 @@ public:
 				break;
 			case '{':	// is object
 				in.get();
-		DEBUG;
 				AssureType(OBJECT);
 				while(!in.eof()) {
 					ReadWs(in);
@@ -582,11 +577,9 @@ public:
 							in.get();
 							object->operator[](key).Read(in);
 						} else {
-		DEBUG;
 							Error("Invalid object value");
 						}
 					} else {
-		DEBUG;
 						Error("Invalid object key");
 						std::cerr << *this << "   " << (char)in.peek();
 					}
@@ -596,7 +589,6 @@ public:
 			case 'T':
 			case 'y':
 			case 'Y':
-		DEBUG;
 				*this = true;
 				ClearUntilEndVar(in);
 				return;
@@ -604,17 +596,14 @@ public:
 			case 'F':
 			case 'n':
 			case 'N':
-		DEBUG;
 				*this = false;
 				ClearUntilEndVar(in);
 				return;
 			case '\'':	// is string
 			case '"':
-		DEBUG;
 				*this = ReadString(in);
 				return;
 			default:	// is number or invalid
-		DEBUG;
 				{
 					std::string value = GetUntilEndVar(in);
 					if(value == "") {
