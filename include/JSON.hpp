@@ -26,6 +26,7 @@
 #include <mutex>
 #include <list>
 #include <algorithm>
+#include <sstream>
 
 #include <cstdlib>
 #include <cinttypes>
@@ -107,6 +108,9 @@ public:
 		}
 		other.type = NONE;
 	}
+	JSON(std::istream& in) : type(NONE) {
+		Read(in);
+	}
 	
 	~JSON() {
 		switch(type) {
@@ -116,6 +120,14 @@ public:
 			default: break;
 		}
 		string = NULL;
+	}
+	
+	inline size_t size() const {
+		if(type==ARRAY)
+			return array->size();
+		if(type==OBJECT)
+			return object->size();
+		return 0;
 	}
 	
 	inline JSON& operator=(const string_t& value) {return this->operator=(JSON(value));}
@@ -129,8 +141,8 @@ public:
 	inline JSON& operator=(uint32_t value) {return this->operator=(JSON(value));}
 	inline JSON& operator=(uint16_t value) {return this->operator=(JSON(value));}
 	inline JSON& operator=(uint8_t value) {return this->operator=(JSON(value));}
-	inline JSON& operator=(double value) {return this->operator=(JSON(value));}
 	inline JSON& operator=(float value) {return this->operator=(JSON(value));}
+	inline JSON& operator=(double value) {return this->operator=(JSON(value));}
 	inline JSON& operator=(long double value) {return this->operator=(JSON(value));}
 	inline JSON& operator=(boolean_t value) {return this->operator=(JSON(value));}
 	inline JSON& operator=(const array_t& value) {return this->operator=(JSON(value));}
@@ -325,7 +337,7 @@ public:
 		}
 		return it->second;
 	}
-	inline const JSON& operator[](size_t id) const {
+	inline const JSON& operator[](uint64_t id) const {
 		auto a = GetArray();
 		if(a.size() <= id) {
 			const static JSON _json;
@@ -333,10 +345,16 @@ public:
 		}
 		return a[id];
 	}
+	inline const JSON& operator[](uint32_t id) const {return (*this)[(uint64_t)id];}
+	inline const JSON& operator[](uint16_t id) const {return (*this)[(uint64_t)id];}
+	inline const JSON& operator[](uint8_t id) const {return (*this)[(uint64_t)id];}
+	inline const JSON& operator[](int64_t id) const {return (*this)[(uint64_t)id];}
+	inline const JSON& operator[](int32_t id) const {return (*this)[(uint64_t)id];}
+	inline const JSON& operator[](int16_t id) const {return (*this)[(uint64_t)id];}
+	inline const JSON& operator[](int8_t id) const {return (*this)[(uint64_t)id];}
 	
 	inline operator const array_t&() const {return GetArray();}
 	inline operator const object_t&() const {return GetObject();}
-	inline operator const string_t() const {return GetString();}
 	inline operator const float() const {return GetReal();}
 	inline operator const double() const {return GetReal();}
 	inline operator const long double() const {return GetReal();}
@@ -349,6 +367,10 @@ public:
 	inline operator const int32_t() const {return GetInteger();}
 	inline operator const int16_t() const {return GetInteger();}
 	inline operator const int8_t() const {return GetInteger();}
+	
+	inline operator array_t() const {return GetArray();}
+	inline operator object_t() const {return GetObject();}
+	inline operator string_t() const {return GetString();}
 	
 	inline const array_t& Array() const {return GetArray();}
 	inline const object_t& Object() const {return GetObject();}
@@ -417,13 +439,20 @@ public:
 		AssureType(OBJECT);
 		return AccessObject()[key];
 	}
-	inline JSON& operator[](size_t id) {
+	inline JSON& operator[](uint64_t id) {
 		AssureType(ARRAY);
 		if(array->size() <= id) {
 			array->resize(id+1);
 		}
 		return array->at(id);
 	}
+	inline JSON& operator[](uint32_t id) {return (*this)[(uint64_t)id];}
+	inline JSON& operator[](uint16_t id) {return (*this)[(uint64_t)id];}
+	inline JSON& operator[](uint8_t id) {return (*this)[(uint64_t)id];}
+	inline JSON& operator[](int64_t id) {return (*this)[(uint64_t)id];}
+	inline JSON& operator[](int32_t id) {return (*this)[(uint64_t)id];}
+	inline JSON& operator[](int16_t id) {return (*this)[(uint64_t)id];}
+	inline JSON& operator[](int8_t id) {return (*this)[(uint64_t)id];}
 	
 	inline operator array_t&() {return AccessArray();}
 	inline operator object_t&() {return AccessObject();}
@@ -468,6 +497,16 @@ public:
 	
 	inline void Clear() {
 		Destroy();
+	}
+	
+	inline std::string Write() const {
+		std::stringstream ss;
+		WriteCompact(ss);
+		return ss.str();
+	}
+	
+	inline void Write(std::ostream& out) const {
+		WriteCompact(out);
 	}
 	
 	inline void WriteCompact(std::ostream& out) const {
@@ -710,6 +749,12 @@ public:
 	}
 	
 	
+	bool IsArray() const {return type==ARRAY;}
+	bool IsObject() const {return type==OBJECT;}
+	bool IsInteger() const {return type==INTEGER;}
+	bool IsReal() const {return type==REAL;}
+	bool IsBoolean() const {return type==BOOLEAN;}
+	bool IsString() const {return type==STRING;}
 	
 	
 	static void Error(const std::string& str) {
