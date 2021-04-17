@@ -235,7 +235,7 @@ public:
 		type = BOOLEAN;
 	}
 	
-	JSON Convert(Type _type) {
+	inline JSON Convert(Type _type) {
 		switch(_type) {
 			case NONE:
 				return JSON();
