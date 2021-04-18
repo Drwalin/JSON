@@ -326,10 +326,10 @@ public:
 	
 	
 	inline const JSON& operator[](const char* key) const {
-		return (*this)[(std::string)key];
+		return this->operator[]((std::string)key);
 	}
 	inline const JSON& operator[](const std::string& key) const {
-		auto o = GetObject();
+		auto& o = Object();
 		auto it = o.find(key);
 		if(it == o.end()) {
 			const static JSON _json;
@@ -338,7 +338,7 @@ public:
 		return it->second;
 	}
 	inline const JSON& operator[](uint64_t id) const {
-		auto a = GetArray();
+		auto& a = GetArray();
 		if(a.size() <= id) {
 			const static JSON _json;
 			return _json;
@@ -410,6 +410,8 @@ public:
 			return integer;
 		if(type == BOOLEAN)
 			return boolean;
+		if(type == STRING)
+			return atof(string->c_str());
 		return 0.0;
 	}
 	inline const integer_t GetInteger() const {
@@ -419,6 +421,8 @@ public:
 			return real;
 		if(type == BOOLEAN)
 			return boolean;
+		if(type == STRING)
+			return atoll(string->c_str());
 		return 0;
 	}
 	inline const boolean_t GetBoolean() const {
@@ -428,6 +432,14 @@ public:
 			return real;
 		if(type == INTEGER)
 			return integer;
+		if(type == STRING) {
+			if(atoll(string->c_str())!=0 || atof(string->c_str())!=0.0)
+				return true;
+			std::string t = *string;
+			for(auto& c : t)
+				c = (c>='a'&&c<='z') ? c-('a'-'A') : c;
+			return t=="TRUE" || t=="YES";
+		}
 		return false;
 	}
 	
