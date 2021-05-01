@@ -268,7 +268,7 @@ public:
 					case BOOLEAN:
 						return JSON((integer_t)boolean);
 					case STRING:
-						return JSON(atoll(string->c_str()));
+						return JSON((integer_t)atoll(string->c_str()));
 					default:
 						break;
 				}
@@ -476,7 +476,7 @@ public:
 			case OBJECT:
 				{
 					std::string ind = newline;
-					for(size_t i=1; i<depth; ++i)
+					for(size_t i=0; i<depth; ++i)
 						ind += indent;
 					if(type == ARRAY) {
 						out << '[';
@@ -495,7 +495,7 @@ public:
 							out << ind << indent;
 							WriteString(out, p.first);
 							out << ':';
-							p.second.WriteBeautyfull(out, indent, newline, depth+2);
+							p.second.WriteBeautyfull(out, indent, newline, depth+1);
 						}
 						if(next)
 							out << ind;
@@ -531,7 +531,7 @@ public:
 				case '\r': out<<"\\r"; break;
 				case '\'': out<<"\\'"; break;
 				case '"': out<<"\\\""; break;
-				case '\\': out<<"\\";  break;
+				case '\\': out<<"\\\\";  break;
 				case 0:     out<<'"'; return;
 				default: out<<c;
 			}
@@ -612,7 +612,7 @@ public:
 					if(std::any_of(value.begin(), value.end(), [](char c)->bool{return c=='.'||c=='e'||c=='E';})) {	// is probably real
 						*this = atof(value.c_str());
 					} else { // is probably a integer integer
-						*this = atoll(value.c_str());
+						*this = (integer_t)atoll(value.c_str());
 					}
 				}
 		}
