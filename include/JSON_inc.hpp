@@ -73,7 +73,7 @@ inline const JSON& JSON::operator[](const char* key) const {
 }
 
 inline const JSON& JSON::operator[](const std::string& key) const {
-	auto o = GetObject();
+	const object_t& o = GetObject();
 	auto it = o.find(key);
 	if(it == o.end()) {
 		const static JSON _json;
@@ -83,7 +83,7 @@ inline const JSON& JSON::operator[](const std::string& key) const {
 }
 
 inline const JSON& JSON::operator[](size_t id) const {
-	auto a = GetArray();
+	const array_t& a = GetArray();
 	if(a.size() <= id) {
 		const static JSON _json;
 		return _json;
@@ -164,6 +164,16 @@ inline JSON& JSON::operator[](size_t id) {
 	if(array->size() <= id)
 		array->resize(id+1);
 	return array->at(id);
+}
+
+inline size_t JSON::size() const {
+	if(type==ARRAY)
+		return array->size();
+	else if(type==OBJECT)
+		return object->size();
+	else if(type==STRING)
+		return string->size();
+	return 0;
 }
 
 #endif

@@ -25,6 +25,7 @@
 #include <mutex>
 #include <list>
 #include <algorithm>
+#include <sstream>
 
 #include <cstdlib>
 #include <cinttypes>
@@ -201,6 +202,17 @@ void JSON::Clear() {
 	Destroy();
 }
 
+
+std::string JSON::Write() const {
+	std::stringstream ss;
+	WriteCompact(ss);
+	return ss.str();
+}
+
+void JSON::Write(std::ostream& out) const {
+	WriteBeautyfull(out);
+}
+
 void JSON::WriteCompact(std::ostream& out) const {
 	WriteBeautyfull(out, "", "");
 }
@@ -276,6 +288,12 @@ void JSON::WriteString(std::ostream& out, const std::string& str) {
 		}
 	}
 	out << '"';
+}
+
+
+void JSON::Read(const std::string& str) {
+	std::stringstream ss(str);
+	Read(ss);
 }
 
 void JSON::Read(std::istream& in) {

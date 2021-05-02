@@ -70,6 +70,7 @@ public:
 	JSON(long double value) : real(value), type(REAL) {}
 	JSON(boolean_t value) : boolean(value), type(BOOLEAN) {}
 	JSON(const array_t& value) : array(new array_t(value)), type(ARRAY) {}
+	JSON(std::istream& in) {Read(in);}
 	template<typename T>
 	JSON(T* ptr, size_t count);
 	template<class Iterator>
@@ -96,7 +97,7 @@ public:
 	inline JSON& operator=(long double value) {return this->operator=(JSON(value));}
 	inline JSON& operator=(boolean_t value) {return this->operator=(JSON(value));}
 	inline JSON& operator=(const array_t& value) {return this->operator=(JSON(value));}
-	inline JSON& operator=(JSON&& other);
+	JSON& operator=(JSON&& other);
 	JSON& operator=(const JSON& other);
 	
 	void Init(Type newType);
@@ -114,17 +115,34 @@ public:
 	inline void InitBoolean(boolean_t value) {Destroy(); boolean=value; type=BOOLEAN;}
 	
 	JSON Convert(Type _type);
+
+	inline bool IsObject() const {return type == OBJECT;}
+	inline bool IsArray() const {return type == ARRAY;}
+	inline bool IsString() const {return type == STRING;}
+	inline bool IsInteger() const {return type == INTEGER;}
+	inline bool IsReal() const {return type == REAL;}
+	inline bool IsBoolean() const {return type == BOOLEAN;}
 	
 	inline const JSON& operator[](const char* key) const;
 	inline const JSON& operator[](const std::string& key) const;
 	inline const JSON& operator[](size_t id) const;
+	inline const JSON& operator[](int id) const {return (*this)[(size_t)id];}
 	
 	inline operator const array_t&() const {return GetArray();}
 	inline operator const object_t&() const {return GetObject();}
 	inline operator const string_t() const {return GetString();}
-	inline operator const real_t() const {return GetReal();}
+	inline operator const long double() const {return GetReal();}
+	inline operator const double() const {return GetReal();}
+	inline operator const float() const {return GetReal();}
 	inline operator const boolean_t() const {return GetBoolean();}
-	inline operator const integer_t() const {return GetInteger();}
+	inline operator const int8_t() const {return GetInteger();}
+	inline operator const int16_t() const {return GetInteger();}
+	inline operator const int32_t() const {return GetInteger();}
+	inline operator const int64_t() const {return GetInteger();}
+	inline operator const uint8_t() const {return GetInteger();}
+	inline operator const uint16_t() const {return GetInteger();}
+	inline operator const uint32_t() const {return GetInteger();}
+	inline operator const uint64_t() const {return GetInteger();}
 	
 	inline const array_t& Array() const {return GetArray();}
 	inline const object_t& Object() const {return GetObject();}
@@ -143,6 +161,7 @@ public:
 	inline JSON& operator[](const char* key);
 	inline JSON& operator[](const std::string& key);
 	inline JSON& operator[](size_t id);
+	inline JSON& operator[](int id) {return (*this)[(size_t)id];}
 	
 	inline operator array_t&() {return AccessArray();}
 	inline operator object_t&() {return AccessObject();}
@@ -164,15 +183,22 @@ public:
 	inline real_t& AccessReal() {AssureType(REAL); return real;}
 	inline integer_t& AccessInteger() {AssureType(INTEGER); return integer;}
 	inline boolean_t& AccessBoolean() {AssureType(BOOLEAN); return boolean;}
+
+	inline size_t size() const;
 	
 	void Clear();
 	
+	std::string Write() const;
+	void Write(std::ostream& out) const;
+
 	void WriteCompact(std::ostream& out) const;
 	void WriteBeautyfull(std::ostream& out,
 		const std::string& indent="\t",
 		const std::string& newline="\n",
 		size_t depth=0) const;
 	static void WriteString(std::ostream& out, const std::string& str);
+
+	void Read(const std::string& str);
 	void Read(std::istream& in);
 	static std::string GetUntilEndVar(std::istream& in);
 	static void ClearUntilEndVar(std::istream& in);
