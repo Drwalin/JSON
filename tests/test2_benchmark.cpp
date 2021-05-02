@@ -1,5 +1,5 @@
 
-#include "../include/JSON.hpp"
+#include "../src/JSON.cpp"
 
 #include <cstdlib>
 #include <ctime>
@@ -52,13 +52,13 @@ int main(int argc, char**argv) {
 		JSON j;
 		for(int i=0; i<10000; ++i)
 			Random(j[i], 9);
-		std::ofstream f("test2_benchmark.json");
+		std::ofstream f("2.json");
 		j.WriteBeautyfull(f, "    ", "\n");
 	}
 
 	{
 		JSON j;
-		std::ifstream f("test2_benchmark.json");
+		std::ifstream f("2.json");
 		int beg = clock();
 		f >> j;
 		int end = clock()-beg;
