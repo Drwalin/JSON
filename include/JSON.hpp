@@ -102,7 +102,7 @@ public:
 	
 	void Init(Type newType);
 	
-	inline void AssureType(Type newType) {if(type != newType) Init(newType);}
+	inline void AssureType(Type newType);
 	
 	template<typename... Args>
 	inline void InitString(Args... args);
