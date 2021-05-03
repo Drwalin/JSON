@@ -34,6 +34,18 @@ JSON::JSON(const Iterator& begin, const Iterator& end) {
 }
 
 
+inline void JSON::AssureType(Type newType) {
+	if(type != newType) {
+		if(type==INTEGER && newType==REAL)
+			(real = integer, type = REAL);
+		else if(type==REAL && newType==INTEGER)
+			(integer = real, type = INTEGER);
+		else
+			Init(newType);
+	}
+}
+
+
 template<typename... Args>
 inline void JSON::InitString(Args... args) {
 	if(type == STRING)
