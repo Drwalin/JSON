@@ -366,7 +366,19 @@ void JSON::Read(std::istream& in) {
 				if(value == "") {
 					Destroy();
 				}
-				if(std::any_of(value.begin(), value.end(), [](char c)->bool{return c=='.'||c=='e'||c=='E';})) {	// is probably real
+				if(std::any_of(value.begin(), value.end(),
+							[](char c)->bool{
+							return !(
+								(c>='0' && c<='9') ||
+								c=='-' ||
+								c=='+' ||
+								c=='e' ||
+								c=='E');
+							})) {	// is it a string without quotes
+				} else if(std::any_of(value.begin(), value.end(),
+							[](char c)->bool{
+							return c=='.'||c=='e'||c=='E';
+							})) {	// is probably real
 					*this = atof(value.c_str());
 				} else { // is probably a integer integer
 					*this = (integer_t)atoll(value.c_str());
