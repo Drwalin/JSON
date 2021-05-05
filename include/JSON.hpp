@@ -201,6 +201,7 @@ public:
 	void Read(const std::string& str);
 	void Read(std::istream& in);
 	static std::string GetUntilEndVar(std::istream& in);
+	static std::string GetNoQuoteStringUntilEndVar(std::istream& in);
 	static void ClearUntilEndVar(std::istream& in);
 	static void ReadWs(std::istream& in);
 	static std::string ReadString(std::istream& in);
