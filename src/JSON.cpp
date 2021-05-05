@@ -342,19 +342,35 @@ void JSON::Read(std::istream& in) {
 				}
 			}
 			break;
-		case 't':	// is boolean true
+		case 't':	// is it boolean true
 		case 'T':
 		case 'y':
 		case 'Y':
-			*this = true;
-			ClearUntilEndVar(in);
+			{
+				std::string value = GetUntilEndVar(in);
+				std::string v = value;
+				std::transform(v.begin(), v.end(), v.begin(),
+						[](unsigned char c){return std::tolower(c);});
+				if(v == "true" || v == "yes")
+					*this = true;
+				else
+					*this = value;
+			}
 			return;
-		case 'f':	// is boolean false
+		case 'f':	// is it boolean false
 		case 'F':
 		case 'n':
 		case 'N':
-			*this = false;
-			ClearUntilEndVar(in);
+			{
+				std::string value = GetUntilEndVar(in);
+				std::string v = value;
+				std::transform(v.begin(), v.end(), v.begin(),
+						[](unsigned char c){return std::tolower(c);});
+				if(v == "false" || v == "no")
+					*this = false;
+				else
+					*this = value;
+			}
 			return;
 		case '\'':	// is string
 		case '"':
@@ -365,23 +381,26 @@ void JSON::Read(std::istream& in) {
 				std::string value = GetUntilEndVar(in);
 				if(value == "") {
 					Destroy();
-				}
-				if(std::any_of(value.begin(), value.end(),
+				} else if(std::all_of(value.begin(), value.end(),
 							[](char c)->bool{
-							return !(
+							return (
 								(c>='0' && c<='9') ||
+								c=='.' ||
 								c=='-' ||
 								c=='+' ||
 								c=='e' ||
 								c=='E');
-							})) {	// is it a string without quotes
-				} else if(std::any_of(value.begin(), value.end(),
-							[](char c)->bool{
-							return c=='.'||c=='e'||c=='E';
-							})) {	// is probably real
-					*this = atof(value.c_str());
-				} else { // is probably a integer integer
-					*this = (integer_t)atoll(value.c_str());
+							})) {	// is it a number
+					if(std::any_of(value.begin(), value.end(),
+								[](char c)->bool{
+								return c=='.'||c=='e'||c=='E';
+								})) {		// is real
+						*this = atof(value.c_str());
+					} else {		// is integer
+						*this = (integer_t)atoll(value.c_str());
+					}
+				} else {	// is string without quotes
+					*this = value;
 				}
 			}
 	}
@@ -395,6 +414,7 @@ std::string JSON::GetUntilEndVar(std::istream& in) {
 			case ',':
 			case ']':
 			case '}':
+			case EOF:
 				return str;
 			default:
 				str += (char)in.get();
