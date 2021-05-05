@@ -347,7 +347,7 @@ void JSON::Read(std::istream& in) {
 		case 'y':
 		case 'Y':
 			{
-				std::string value = GetUntilEndVar(in);
+				std::string value = GetNoQuoteStringUntilEndVar(in);
 				std::string v = value;
 				std::transform(v.begin(), v.end(), v.begin(),
 						[](unsigned char c){return std::tolower(c);});
@@ -362,7 +362,7 @@ void JSON::Read(std::istream& in) {
 		case 'n':
 		case 'N':
 			{
-				std::string value = GetUntilEndVar(in);
+				std::string value = GetNoQuoteStringUntilEndVar(in);
 				std::string v = value;
 				std::transform(v.begin(), v.end(), v.begin(),
 						[](unsigned char c){return std::tolower(c);});
@@ -378,7 +378,7 @@ void JSON::Read(std::istream& in) {
 			return;
 		default:	// is number or invalid
 			{
-				std::string value = GetUntilEndVar(in);
+				std::string value = GetNoQuoteStringUntilEndVar(in);
 				if(value == "") {
 					Destroy();
 				} else if(std::all_of(value.begin(), value.end(),
@@ -404,6 +404,27 @@ void JSON::Read(std::istream& in) {
 				}
 			}
 	}
+}
+
+std::string JSON::GetNoQuoteStringUntilEndVar(std::istream& in) {
+	std::string str;
+	ReadWs(in);
+	while(!in.eof()) {
+		switch(in.peek()) {
+			case ',':
+			case ']':
+			case '}':
+			case EOF:
+			case ' ':
+			case '\n':
+			case '\t':
+			case '\r':
+				return str;
+			default:
+				str += (char)in.get();
+		}
+	}
+	return str;
 }
 
 std::string JSON::GetUntilEndVar(std::istream& in) {
